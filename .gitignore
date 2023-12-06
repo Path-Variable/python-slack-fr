@@ -1,0 +1,6 @@
+.venv
+.idea
+*.iml
+__pycache__
+debug.log
+venv
