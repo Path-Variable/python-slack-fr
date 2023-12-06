@@ -2,18 +2,32 @@ from flask import Flask, request
 from face_recog.detector import Detector
 from mongo_client.repository import Repository
 import os
+import logging
 
 from slack_client.slack import SlackClient
 
 app = Flask(__name__)
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler("debug.log"),
+        logging.StreamHandler()
+    ]
+)
+
 slack_client = SlackClient(os.environ['SLACK_API_TOKEN'])
 repository = Repository(os.environ['MONGO_CONNECTION_STRING'])
 detector = Detector(os.environ['SLACK_CHANNEL_ID'], slack_client, repository)
 
-@app.route('/api/message_event', methods=['POST'])
+@app.route('/api/events', methods=['POST'])
 def add_message():
     content = request.get_json(silent=True)
-    if content["subtype"] == "file_share":
-        detector.detect(content["file"]["url_private_download"])
+    app.logger.info("received incoming event %s", content)
+    if content["type"] == "url_verification":
+        return content["challenge"]
+    if "event" in content and "files" in content["event"]:
+        detector.detect(content["event"]["files"][0]["url_private_download"])
+    return "OK"
     
