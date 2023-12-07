@@ -8,10 +8,10 @@ class SlackClient:
     def send_image(self, channel_id, message, image):
         self.client.files_upload(
             channels=channel_id,
-            file=image,
+            content=image,filename="image.png",
             initial_comment=message)
         
-    def send_message(self, channel_id, image):
+    def send_image_no_msg(self, channel_id, image):
         self.client.files_upload(
             channels=channel_id,
-            file=image)
+            content=image, filename="image.png")

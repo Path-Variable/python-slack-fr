@@ -1,10 +1,10 @@
 import requests
 import cv2
-import io
 import face_recognition
-import datetime
-import numpy as np
+from datetime import datetime
 import logging
+import os
+import tempfile
 
 class Detector:
 
@@ -14,7 +14,7 @@ class Detector:
         self.channel_id = channel_id
         self.slack_client = slack_client
         self.repository = repository
-        self.detector = cv2.CascadeClassifier(Detector.haar_cascade)
+        self.detector = cv2.CascadeClassifier(self.haar_cascade)
 
 
     def detect(self, image_url):
@@ -29,18 +29,22 @@ class Detector:
         for existing in all_embeddings:
             for d_embedding in detected_embeddings:
                 if self._is_match(existing, d_embedding):
-                    recognized.append(existing["name"], boxes[detected_embeddings.index(d_embedding)])
+                    recognized.append((existing["name"], boxes[detected_embeddings.index(d_embedding)]))
 
         if len(recognized) > 0:
             self._send_recognized_message(image,recognized)
             return
                           
         self._save_embeddings(detected_embeddings)
-        self._send_unknown_message(boxes, image)
+        self._send_unknown_message(boxes, image.tobytes())
 
     def _get_image(self, image_url):
-        img_stream = io.BytesIO(requests.get(image_url).content)
-        return cv2.imdecode(np.frombuffer(img_stream.read(), np.uint8), 1)
+            logging.info("Downloading image from %s", image_url)
+            headers = {'Authorization': 'Bearer ' + os.environ['SLACK_API_TOKEN']}
+            with tempfile.NamedTemporaryFile() as tmpfile:
+                img_stream = requests.get(image_url, headers=headers).content
+                tmpfile.write(img_stream)
+                return cv2.imread(tmpfile.name, cv2.IMREAD_COLOR)
     
     def _get_embeddings(self, image):
         rectangles = self.detector.detectMultiScale(image, scaleFactor=1.1, 
@@ -57,7 +61,7 @@ class Detector:
 
     def _save_embeddings(self, embeddings):
         for embedding in embeddings:
-            self.repository.save_embedding({"name": "unknown", "embedding": embedding, "created_date": datetime.now()})
+            self.repository.save_embedding({"name": "unknown", "embedding": embedding.tolist(), "created_date": datetime.now()})
 
     def _send_unknown_message(self, boxes, image):
         message = f"{len(boxes)} unknown faces detected"
@@ -67,11 +71,15 @@ class Detector:
         self.slack_client.send_image(self.channel_id, message, image)
 
     def _send_recognized_message(self, image, recognized):
-        for ((top, right, bottom, left), name) in recognized:
+        for (name,(top, right, bottom, left)) in recognized:
             cv2.rectangle(image, (left, top), (right, bottom),(0, 255, 225), 2)
             y = top - 15 if top - 15 > 15 else top + 15
             cv2.putText(image, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
                 .8, (0, 255, 255), 2)
-        self.slack_client.send_image(self.channel_id, image.tobytes())
+        with tempfile.NamedTemporaryFile(suffix=".png") as tmpfile:
+            cv2.imwrite(tmpfile.name, image)
+            f1 = open(tmpfile.name, 'rb')
+            self.slack_client.send_image_no_msg(channel_id=self.channel_id, image=f1.read())
+    
 
 
