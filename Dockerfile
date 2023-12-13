@@ -1,4 +1,4 @@
-FROM ghcr.io/isaric/python-opencv-docker:python-3.10-opencv-4.8.0-arm64
+FROM ghcr.io/isaric/docker-dlib:python-opencv-4.8.0-dlib-19.24
 
 WORKDIR /python-docker
 
