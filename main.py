@@ -38,7 +38,7 @@ def add_message():
         if content["event"]["channel"] == os.environ['READ_SLACK_CHANNEL_ID']:
             detector.detect(content["event"]["files"][0]["url_private_download"])
         else: 
-            app.logger.info(f'Channel ID {["event"]["channel"]} is not on read list. Skipping event')
+            app.logger.info(f'Channel ID {content["event"]["channel"]} is not on read list. Skipping event')
     return "OK"
 
     
