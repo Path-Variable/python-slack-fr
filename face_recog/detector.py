@@ -26,17 +26,24 @@ class Detector:
         
         all_embeddings = self.repository.get_all_embeddings()
         recognized = []
+        unknown = []
         for existing in all_embeddings:
             for d_embedding in detected_embeddings:
+                box = boxes[detected_embeddings.index(d_embedding)]
                 if self._is_match(existing, d_embedding):
-                    recognized.append((existing["name"], boxes[detected_embeddings.index(d_embedding)]))
+                    logging.info("Found match")
+                    recognized.append((existing["name"], box))
+                else:
+                    unknown.append(box)
 
         if len(recognized) > 0:
+            logging.info("Sending message with recognized faces")
             self._send_recognized_message(image,recognized)
-            return
-                          
-        self._save_embeddings(detected_embeddings)
-        self._send_unknown_message(boxes, image.tobytes())
+            
+        if len(unknown) > 0:
+            logging.info("Sending message with unknown faces")
+            self._send_unknown_message(unknown, image.tobytes())
+            self._save_embeddings(unknown)
 
     def _get_image(self, image_url):
             logging.info("Downloading image from %s", image_url)
