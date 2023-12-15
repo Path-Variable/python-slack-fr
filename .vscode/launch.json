@@ -5,6 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Remote Attach",
+            "type": "python",
+            "request": "attach",
+            "connect": {
+                "host": "10.66.66.6",
+                "port": 5678
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}",
+                    "remoteRoot": "."
+                }
+            ],
+            "justMyCode": true
+        },
+        {
             "name": "Python: Flask",
             "type": "python",
             "request": "launch",
@@ -12,13 +28,11 @@
             "env": {
                 "FLASK_APP": "main.py",
                 "FLASK_DEBUG": "1",
-                "SLACK_API_TOKEN" : "xoxb-241070135347-1373084066946-RKPQf2uO6s7Oi0F8InCgwgkx",
-                "MONGO_CONNECTION_STRING" : "mongodb://localhost:27017",
-                "WRITE_SLACK_CHANNEL_ID" : "C0692LSN85R",
-                "READ_SLACK_CHANNEL_ID" : "G01ASA2SG22",
-                "SLACK_VERIFICATION_TOKEN" : "u99mYutBGu9ckh4JnOk8YU3P"
-
-
+                "SLACK_API_TOKEN": "xoxb-241070135347-1373084066946-RKPQf2uO6s7Oi0F8InCgwgkx",
+                "MONGO_CONNECTION_STRING": "mongodb://localhost:27017",
+                "WRITE_SLACK_CHANNEL_ID": "C0692LSN85R",
+                "READ_SLACK_CHANNEL_ID": "G01ASA2SG22",
+                "SLACK_VERIFICATION_TOKEN": "u99mYutBGu9ckh4JnOk8YU3P"
             },
             "args": [
                 "run",
