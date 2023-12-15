@@ -23,7 +23,7 @@ repository = Repository(os.environ['MONGO_CONNECTION_STRING'])
 detector = Detector(os.environ['WRITE_SLACK_CHANNEL_ID'], slack_client, repository)
 
 @app.route('/api/events', methods=['POST'])
-def add_message():
+async def add_message():
     content = request.get_json(silent=True)
     app.logger.info("received incoming event %s", content)
     if content["type"] == "url_verification":
@@ -36,7 +36,7 @@ def add_message():
         app.logger.info("Received event contains files")
         # TODO: switch to manageable list of channel ids
         if content["event"]["channel"] == os.environ['READ_SLACK_CHANNEL_ID']:
-            detector.detect(content["event"]["files"][0]["url_private_download"])
+            await detector.detect(content["event"]["files"][0]["url_private_download"])
         else: 
             app.logger.info(f'Channel ID {content["event"]["channel"]} is not on read list. Skipping event')
     return "OK"
