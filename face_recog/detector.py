@@ -65,7 +65,7 @@ class Detector:
 
     def _send_unknown_message(self, boxes, image):
         message = f"{len(boxes)} unknown faces detected"
-        for (top, right, bottom, left) in zip(boxes):
+        for (top, right, bottom, left) in boxes:
             cv2.rectangle(image, (left, top), (right, bottom),
                 (0, 255, 225), 2)
         self.slack_client.send_image(self.channel_id, message, image)
