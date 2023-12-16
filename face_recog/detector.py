@@ -31,8 +31,9 @@ class Detector:
             for d_embedding in detected_embeddings:
                 box = boxes[detected_embeddings.index(d_embedding)]
                 if self._is_match(existing, d_embedding):
-                    logging.info("Found match")
-                    recognized.append((existing["name"], box))
+                    name = existing["name"]
+                    logging.info(f"Found match - {name}")
+                    recognized.append((name, box))
                 else:
                     unknown.append(box)
 

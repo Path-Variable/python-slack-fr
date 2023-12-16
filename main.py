@@ -9,10 +9,10 @@ from slack_client.slack import SlackClient
 
 class DetectorFacade:
 
-    def __init__(self, detector, slack_verification_token, read_channel):
+    def __init__(self, detector, slack_verification_token, read_channels):
         self.detector = detector
         self.slack_verification_token = slack_verification_token
-        self.read_channel = read_channel
+        self.read_channels = read_channels
 
     def process(self, content):
         if content["token"] != self.slack_verification_token:
@@ -21,7 +21,7 @@ class DetectorFacade:
         if "event" in content and "files" in content["event"]:
             app.logger.info("Received event contains files")
             # TODO: switch to manageable list of channel ids
-            if content["event"]["channel"] == self.read_channel:
+            if content["event"]["channel"] in self.read_channels:
                 detector.detect(content["event"]["files"][0]["url_private_download"])
             else: 
                 app.logger.info(f'Channel ID {content["event"]["channel"]} is not on read list. Skipping event')
