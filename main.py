@@ -36,7 +36,7 @@ async def add_message():
         app.logger.info("Received event contains files")
         # TODO: switch to manageable list of channel ids
         if content["event"]["channel"] == os.environ['READ_SLACK_CHANNEL_ID']:
-            await detector.detect(content["event"]["files"][0]["url_private_download"])
+            detector.detect(content["event"]["files"][0]["url_private_download"])
         else: 
             app.logger.info(f'Channel ID {content["event"]["channel"]} is not on read list. Skipping event')
     return "OK"
