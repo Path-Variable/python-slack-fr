@@ -49,19 +49,12 @@ class Detector:
     def _get_image(self, image_url):
             logging.info("Downloading image from %s", image_url)
             headers = {'Authorization': 'Bearer ' + os.environ['SLACK_API_TOKEN']}
-            with tempfile.NamedTemporaryFile() as tmpfile:
-                img_stream = requests.get(image_url, headers=headers).content
-                tmpfile.write(img_stream)
-                return cv2.imread(tmpfile.name, cv2.IMREAD_COLOR)
+            img_stream = requests.get(image_url, headers=headers).content
+            return face_recognition.load_image_file(img_stream)
     
     def _get_embeddings(self, image):
-        rectangles = self.detector.detectMultiScale(image, scaleFactor=1.1, 
-                        minNeighbors=5, minSize=(50, 50),
-                        flags=cv2.CASCADE_SCALE_IMAGE)
-        if len(rectangles) > 0:
-            boxes = [(y, x + w, y + h, x) for (x, y, w, h) in rectangles]
+            boxes = face_recognition.face_locations(image)
             return face_recognition.face_encodings(image, boxes), boxes
-        return [], []
         
     def _is_match(self, existing, detected):
         match = face_recognition.compare_faces([existing['embedding']], detected)
