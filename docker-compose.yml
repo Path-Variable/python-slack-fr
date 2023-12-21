@@ -4,14 +4,16 @@ services:
     build: .
     ports:
       - "5000:5000"
+      - "5678:5678"
     environment:
       - SLACK_API_TOKEN=xoxb-241070135347-1373084066946-RKPQf2uO6s7Oi0F8InCgwgkx
       - MONGO_CONNECTION_STRING=mongodb://mongo:27017
-      - READ_SLACK_CHANNEL_ID=C0692LSN85R
-      - WRITE_SLACK_CHANNEL_ID=G01ASA2SG22
+      - READ_SLACK_CHANNEL_ID=G01ASA2SG22
+      - WRITE_SLACK_CHANNEL_ID=C0692LSN85R
       - SLACK_VERIFICATION_TOKEN=u99mYutBGu9ckh4JnOk8YU3P
     depends_on:
       - mongo
+    command: 'python3 -m debugpy --listen 0.0.0.0:5678 -m flask --app main run --host=0.0.0.0'
   mongo:
     image: mongo
     ports:
