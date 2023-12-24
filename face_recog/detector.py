@@ -72,19 +72,21 @@ class Detector:
 
     def _send_unknown_message(self, unknown, image):
         message = f"{len(unknown)} unknown faces detected"
+        colorim = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         for _, (top, right, bottom, left) in unknown:
-            cv2.rectangle(image, (left, top), (right, bottom),
+            cv2.rectangle(colorim, (left, top), (right, bottom),
                 (0, 255, 225), 2)
-        _, bts = cv2.imencode('.png', image)
+        _, bts = cv2.imencode('.png', colorim)
         self.slack_client.send_image(self.channel_id, message, bts.tostring())
 
     def _send_recognized_message(self, image, recognized):
         for (name,(top, right, bottom, left)) in recognized:
-            cv2.rectangle(image, (left, top), (right, bottom),(0, 255, 225), 2)
+            colorim = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+            cv2.rectangle(colorim, (left, top), (right, bottom),(0, 255, 225), 2)
             y = top - 15 if top - 15 > 15 else top + 15
-            cv2.putText(image, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
+            cv2.putText(colorim, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
                 .8, (0, 255, 255), 2)
-            _, bts = cv2.imencode('.png', image)
+            _, bts = cv2.imencode('.png', colorim)
             self.slack_client.send_image_no_msg(channel_id=self.channel_id, image=bts.tostring())
     
 
