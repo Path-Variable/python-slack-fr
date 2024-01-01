@@ -15,6 +15,9 @@ mentioned in the previous sentence. As in the previous case, an image will be se
 The service admin should change the default name - "uknown" - to a designation for that embedding (ex. the name or alias of the detected face).
 This can only be done by direct connection to the mongodb instance as a seperate admin interface does not exsist.
 
+It was originally intended to be used with another application I wrote that monitors ONVIF cameras and posts motion events
+with snapshots to Slack. For details, please see that project [here](https://github.com/Path-Variable/onvif-cam-poll).
+
 ## How to run
 
 The service has a single dependency - a MongoDB database. It uses only a single collection for all operations.
